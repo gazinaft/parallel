@@ -1,10 +1,16 @@
 package Counter;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class SyncObjCounter implements Counter {
 
     private int value = 0;
+    private final Lock lock;
 
-    public SyncObjCounter() {}
+    public SyncObjCounter() {
+        lock = new ReentrantLock();
+    }
 
     public int getValue() {
         return value;
@@ -12,16 +18,16 @@ public class SyncObjCounter implements Counter {
 
     @Override
     public void increment() {
-        synchronized (this) {
-            value += 1;
-        }
+        lock.lock();
+        value += 1;
+        lock.unlock();
     }
 
     @Override
     public void decrement() {
-        synchronized (this) {
-            value -= 1;
-        }
+        lock.lock();
+        value -= 1;
+        lock.unlock();
     }
 
 }

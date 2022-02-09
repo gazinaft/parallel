@@ -34,7 +34,7 @@ public class BounceFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Ball b = new Ball(canvas, canvas.getPockets(), Color.BLUE);
                 canvas.add(b);
-                BallThread thread = new BallThread(b, 6);
+                BallThread thread = new BallThread(b, 1);
                 thread.start();
                 System.out.println("Thread name = " +
                         thread.getName());
@@ -46,7 +46,7 @@ public class BounceFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Ball red = new Ball(canvas, canvas.getPockets(), Color.RED);
                 canvas.add(red);
-                BallThread thread = new BallThread(red, 3);
+                BallThread thread = new BallThread(red, 8);
                 thread.start();
                 System.out.println("Thread name Red Ball = " +
                         thread.getName());
@@ -64,11 +64,11 @@ public class BounceFrame extends JFrame {
                 for (int i = 0; i < blueBallsCount; ++i) {
                     Ball blue = new Ball(canvas, canvas.getPockets(), Color.BLUE, canvas.getWidth() / 2, canvas.getHeight() / 2);
                     canvas.add(blue);
-                    BallThread td = new BallThread(blue, 6);
+                    BallThread td = new BallThread(blue, 1);
                     threads.add(td);
                 }
                 Ball red = new Ball(canvas, canvas.getPockets(), Color.RED, canvas.getWidth() / 2, canvas.getHeight() / 2);
-                BallThread thread = new BallThread(red, 1);
+                BallThread thread = new BallThread(red, 8);
                 threads.add(thread);
                 canvas.add(red);
 
@@ -84,7 +84,7 @@ public class BounceFrame extends JFrame {
                 canvas.pauseAll();
                 Ball orange = new Ball(canvas, canvas.getPockets(), Color.ORANGE);
                 canvas.add(orange);
-                BallThread thread = new BallThread(orange, 1);
+                BallThread thread = new BallThread(orange, 10);
                 thread.start();
                 System.out.println("Thread name Blocking Ball = " +
                         thread.getName());

@@ -36,60 +36,48 @@ public class CounterTask {
         long start = System.nanoTime();
         Counter c = new NonSyncCounter();
 
-        Thread inc = new Thread(new SyncNone(c, true));
-        Thread dec = new Thread(new SyncNone(c, false));
+        Thread inc = new Thread(new NonSyncRunner(c, true));
+        Thread dec = new Thread(new NonSyncRunner(c, false));
 
-        System.out.println("Non synchronized");
         experiment(c, inc, dec);
         long finish = System.nanoTime();
-//        logTime(finish - start);
+        System.out.println("Non synchronized");
+        //        logTime(finish - start);
+        System.out.println("====================================");
 
         // Sync methods
         start = System.nanoTime();
         Counter c2 = new SyncMethodCounter();
 
-        Thread inc2 = new Thread(new SyncNone(c2, true));
-        Thread dec2 = new Thread(new SyncNone(c2, false));
+        Thread inc2 = new Thread(new NonSyncRunner(c2, true));
+        Thread dec2 = new Thread(new NonSyncRunner(c2, false));
 
-        System.out.println("Synchronized methods");
         experiment(c2, inc2, dec2);
         finish = System.nanoTime();
+        System.out.println("Synchronized methods");
         logTime(finish - start);
         // Sync block
         start = System.nanoTime();
-        Counter c3 = new NonSyncCounter();
+        Counter c3 = new SyncBlockCounter();
 
-        Thread inc3 = new Thread(new SyncBlock(c3, true));
-        Thread dec3 = new Thread(new SyncBlock(c3, false));
+        Thread inc3 = new Thread(new NonSyncRunner(c3, true));
+        Thread dec3 = new Thread(new NonSyncRunner(c3, false));
 
-        System.out.println("Synchronized block");
         experiment(c3, inc3, dec3);
         finish = System.nanoTime();
+        System.out.println("Synchronized block");
         logTime(finish - start);
-
-
-        // Sync object lock not counter
-        start = System.nanoTime();
-        Counter c4 = new NonSyncCounter();
-
-        Thread inc4 = new Thread(new SyncObj(c4, true));
-        Thread dec4 = new Thread(new SyncObj(c4, false));
-        System.out.println("Synchronized handler object");
-        experiment(c4, inc4, dec4);
-        finish = System.nanoTime();
-        logTime(finish - start);
-
 
         // Sync counter object
         start = System.nanoTime();
         Counter c5 = new SyncObjCounter();
 
-        Thread inc5 = new Thread(new SyncNone(c5, true));
-        Thread dec5 = new Thread(new SyncNone(c5, false));
+        Thread inc5 = new Thread(new NonSyncRunner(c5, true));
+        Thread dec5 = new Thread(new NonSyncRunner(c5, false));
 
-        System.out.println("Synchronized counter object");
         experiment(c5, inc5, dec5);
         finish = System.nanoTime();
+        System.out.println("Locked object");
         logTime(finish - start);
 
 

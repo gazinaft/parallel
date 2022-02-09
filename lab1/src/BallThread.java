@@ -26,7 +26,9 @@ public class BallThread extends Thread {
                 Thread.sleep(5);
             }
 
-        } catch(InterruptedException ex) {}
+        } catch(InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 
     void waitForContinuation() {

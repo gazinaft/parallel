@@ -1,11 +1,11 @@
 package Counter;
 
-public class SyncNone implements Runnable {
+public class NonSyncRunner implements Runnable {
 
     private final Counter c;
     private final boolean toIncrement;
 
-    SyncNone(Counter count, boolean inc) {
+    NonSyncRunner(Counter count, boolean inc) {
         c = count;
         toIncrement = inc;
     }
