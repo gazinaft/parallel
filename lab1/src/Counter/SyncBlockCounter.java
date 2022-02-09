@@ -3,11 +3,10 @@ package Counter;
 public class SyncBlockCounter implements Counter {
 
     private int value = 0;
-    final Object lock;
+    final Object lock = new Object();
+    final Object lock2 = new Object();
 
-    public SyncBlockCounter() {
-        lock = new Object();
-    }
+    public SyncBlockCounter() {}
 
     public int getValue() {
         return value;

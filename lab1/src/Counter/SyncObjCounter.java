@@ -18,16 +18,22 @@ public class SyncObjCounter implements Counter {
 
     @Override
     public void increment() {
-        lock.lock();
-        value += 1;
-        lock.unlock();
+        try {
+            lock.lock();
+            value += 1;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void decrement() {
-        lock.lock();
-        value -= 1;
-        lock.unlock();
+        try {
+            lock.lock();
+            value -= 1;
+        } finally {
+            lock.unlock();
+        }
     }
 
 }
