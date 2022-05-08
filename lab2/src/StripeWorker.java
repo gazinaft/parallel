@@ -1,19 +1,17 @@
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class StripeRunnable implements Runnable {
+public class StripeWorker implements Runnable {
 
     public int[][] AStripes;
     private final int startRow;
     public final ArrayBlockingQueue<int[][]> BStripes;
     public final ArrayBlockingQueue<Integer> BStarts;
-    public StripeRunnable next;
+    public StripeWorker next;
     private final MyMatrix res;
     private int iteration;
     private final int partitions;
 
-    public StripeRunnable(int ARow, int[][] stripe, int partitions, MyMatrix result) {
+    public StripeWorker(int ARow, int[][] stripe, int partitions, MyMatrix result) {
         startRow = ARow;
         AStripes = stripe;
         this.partitions = partitions;

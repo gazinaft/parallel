@@ -58,6 +58,16 @@ public class MyMatrix {
         return res;
     }
 
+    public int[][] getBlock(int row, int column, int width, int height) {
+        var res = new int[width][height];
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                res[i][j] = data[i + row][j + column];
+            }
+        }
+        return res;
+    }
+
     public static MyMatrix generate(int size) {
         var r = new Random();
         var m = new MyMatrix(size);
