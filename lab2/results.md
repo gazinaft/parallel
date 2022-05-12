@@ -32,6 +32,43 @@
 
 # Виконання
 
+## Перевірка результатів
+Правильність результатів множення перевіряється за допомогою функції `testCorrectness` та методу `equals` у класі `MyMatix`.
+Генеруються дві матриці та множаться послідовно та паралельно. І порівнюються отримані результати.
+### testCorrectness у main
+```java
+static boolean testCorrectness() {
+  var sizes = new int[] {4, 5, 100, 300};
+  var threads = new int[] {2, 3, 10};
+  for (var size: sizes) {
+      for (var thread : threads) {
+          var a = MyMatrix.generate(size);
+          var b = MyMatrix.generate(size);
+          var smpp = new StripeMultiplier(thread);
+          var smp = new SerialMultiplier();
+          var c = smp.mult(a, b);
+          var cp = smpp.mult(a, b);
+          if (!c.equals(cp)){
+              System.out.println("Wrong at size" + size + " and threadNumber " + thread);
+              return false;
+          }
+      }
+  }
+  return true;
+}
+```
+### equals in MyMatrix
+```java
+    public boolean equals(MyMatrix other) {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                if (other.get(i, j) != data[i][j]) return false;
+            }
+        }
+        return true;
+    }
+```
+
 ## Зміна розмірів матриць
 | Розмір таблиці | Послідовний час | Стрічковий з 2 потоками | Фокса з 4 сегментами |
 |----------------|-----------------|-------------------------|----------------------|
