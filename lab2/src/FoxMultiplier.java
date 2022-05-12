@@ -39,7 +39,6 @@ public class FoxMultiplier implements IMultiplier {
     }
 
     public FoxWorker[][] divideTasks(MyMatrix a, MyMatrix b, MyMatrix resMatrix) throws InterruptedException {
-        int partitions = sqrtParts * sqrtParts;
         var partSize = a.size / sqrtParts;
         var res = new FoxWorker[sqrtParts][sqrtParts];
         for (int i = 0; i < sqrtParts; ++i) {

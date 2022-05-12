@@ -44,7 +44,7 @@ public class FoxWorker implements Runnable {
         }
     }
 
-    synchronized void multiply() throws InterruptedException {
+    synchronized void multiply() throws InterruptedException { // a[i, j]
         if (jndex == (currentIteration + index) % iterations) {
             for (var q: aRow) {
                 q.put(a);

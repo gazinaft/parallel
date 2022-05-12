@@ -14,7 +14,7 @@ public class Program {
 //        System.out.println();
 //        System.out.println(c.equals(cp));
 
-        testCombined(1000, 8, 8);
+        testCombined(1000, 8, 3); // q^2
     }
 
     static boolean testCorrectness() {
@@ -73,8 +73,8 @@ public class Program {
             results[0] = testSerial(a, b);
             results[1] = testStripe(a, b, threads);
             results[2] = testFox(a, b, partitions);
-//            System.out.println("Serial speedup: " + ((double) results[0] / (double) results[1]) + " at " + threads + " threads");
-//            System.out.println("Fox speedup: " + ((double) results[0] / (double) results[2]) + " at " + partitions + " partition");
+            System.out.println("Serial speedup: " + ((double) results[0] / (double) results[1]) + " at " + threads + " threads");
+            System.out.println("Fox speedup: " + ((double) results[0] / (double) results[2]) + " at " + partitions + " partition");
             System.out.println();
 
         }
