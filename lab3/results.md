@@ -89,3 +89,165 @@
     }
 ```
 
+## Producer-Consumer application
+### Модифікований код
+```java
+package ConsumerProducer;
+
+import java.util.Random;
+
+public class Consumer implements Runnable {
+    private Drop drop;
+
+    public Consumer(Drop drop) {
+        this.drop = drop;
+    }
+
+    public void run() {
+        Random random = new Random();
+        int size = drop.take();
+        for (int i = 0; i < size; ++i) {
+            var message = drop.take();
+            System.out.println("MESSAGE " + (i + 1) + " OF " + size + " RECEIVED: " + message);
+            try {
+                Thread.sleep(random.nextInt(100));
+            } catch (InterruptedException e) {}
+        }
+    }
+}
+```
+```java
+package ConsumerProducer;
+
+public class Drop {
+    // Message sent from producer
+    // to consumer.
+    private int message;
+    // True if consumer should wait
+    // for producer to send message,
+    // false if producer should wait for
+    // consumer to retrieve message.
+    private boolean empty = true;
+
+    public synchronized int take() {
+        // Wait until message is
+        // available.
+        while (empty) {
+            try {
+                wait();
+            } catch (InterruptedException e) {}
+        }
+        // Toggle status.
+        empty = true;
+        // Notify producer that
+        // status has changed.
+        notifyAll();
+        return message;
+    }
+
+    public synchronized void put(int message) {
+        // Wait until message has
+        // been retrieved.
+        while (!empty) {
+            try {
+                wait();
+            } catch (InterruptedException e) {}
+        }
+        // Toggle status.
+        empty = false;
+        // Store message.
+        this.message = message;
+        // Notify consumer that status
+        // has changed.
+        notifyAll();
+    }
+}
+```
+```java
+package ConsumerProducer;
+
+import java.util.Random;
+
+public class Producer implements Runnable {
+    private Drop drop;
+    private int ARRSIZE = 1000;
+
+    public Producer(Drop drop) {
+        this.drop = drop;
+    }
+
+    public void run() {
+        Random random = new Random();
+        int[] importantInfo = new int[ARRSIZE];
+
+        drop.put(ARRSIZE);
+        for (int i = 0; i < importantInfo.length; i++) {
+            importantInfo[i] = i;
+            drop.put(importantInfo[i]);
+            try {
+                Thread.sleep(random.nextInt(100));
+            } catch (InterruptedException e) {}
+        }
+    }
+}
+```
+
+Також розроблений варіант Producer-Consumer
+application з використанням ArrayBlockingQueue
+у ролі посередника для передачі даних
+
+## Електронний журнал
+Особливістю журналу є його структура, з мінімізованою синхронізацією, що дозволяє досягти кращого перформансу
+```java
+package EJournal;
+
+import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
+
+public class Journal {
+
+    public static final int GRADES_PER_TERM = 10;
+    public static final int STUDENTS_PER_GROUP = 10;
+
+    HashMap<String, ArrayBlockingQueue<Integer>[]> students;
+
+    public Journal(String[] groupNames) {
+        students = new HashMap<>();
+        for (var gn: groupNames) {
+            var gradesPerGroup = new ArrayBlockingQueue[STUDENTS_PER_GROUP];
+            for (int i = 0; i < STUDENTS_PER_GROUP; ++i) {
+                gradesPerGroup[i] = new ArrayBlockingQueue<Integer>(GRADES_PER_TERM);
+            }
+            students.put(gn, gradesPerGroup);
+        }
+    }
+
+    public void grade(String groupName, int person, int grade) {
+        try {
+            students.get(groupName)[person].put(grade);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Object[] getGradesFor(String groupName, int person) {
+        return students.get(groupName)[person].toArray();
+    }
+
+    public void printAllGrades() {
+        for (var group : students.keySet()) {
+            System.out.println(group);
+            for (int i = 0; i < STUDENTS_PER_GROUP; i++) {
+                System.out.println(students.get(group)[i]);
+            }
+        }
+    }
+
+}
+```
+# Висновок
+У ході роботи ми ознайомились з різними методами синхронізації потоків: методи, типи, guarded-блоки. Також попрактикувались у написанні Producer-consumer додатків.
+
+# Додаток 1
+Код можна знайти на [гітхабі](https://github.com/gazinaft/parallel)
+
