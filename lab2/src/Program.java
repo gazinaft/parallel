@@ -18,7 +18,7 @@ public class Program {
 //        System.out.println();
 //        System.out.println(c.equals(cp));
 
-        testCombined(1000, 8, 3); // q^2
+        testCombined(1500, 8, 10); // q^2
     }
 
     static boolean testCorrectness() {
@@ -52,9 +52,8 @@ public class Program {
         return finish - start;
     }
 
-    static long testFJStripe(MyMatrix a, MyMatrix b, int threads) {
-        var pool = new ForkJoinPool();
-        var smpp = new FJStripeMultiplier(threads, pool);
+    static long testFJStripe(MyMatrix a, MyMatrix b, int threads, int partitions) {
+        var smpp = new FJStripeMultiplier(threads, partitions);
         System.gc();
         long start = System.nanoTime();
         var c = smpp.mult(a, b);
@@ -89,7 +88,7 @@ public class Program {
             var results = new long[4];
             results[0] = testSerial(a, b);
             results[1] = testStripe(a, b, threads);
-            results[2] = testFJStripe(a, b, threads);
+            results[2] = testFJStripe(a, b, threads, partitions);
 //            results[3] = testFox(a, b, partitions);
 //            System.out.println("Serial speedup: " + ((double) results[0] / (double) results[1]) + " at " + threads + " threads");
             var fjspeedup = (double) results[1] / (double) results[2];
@@ -101,7 +100,7 @@ public class Program {
             System.out.println();
 
         }
-        System.out.println("Mean speedup of FJ Framework");
+        System.out.println("Mean speedup of FJ Framework at " + partitions + "partitions");
         System.out.println((res.stream().reduce((acc, x) -> acc + x)).get() / (double) res.size());
     }
 

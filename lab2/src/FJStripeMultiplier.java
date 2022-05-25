@@ -5,10 +5,9 @@ public class FJStripeMultiplier implements IMultiplier {
     public final int stripeQuantity;
     public final ForkJoinPool pool;
 
-
-    public FJStripeMultiplier(int partitions, ForkJoinPool pool) {
+    public FJStripeMultiplier(int threads, int partitions) {
         stripeQuantity = partitions;
-        this.pool = pool;
+        this.pool = new ForkJoinPool(threads);
     }
 
     @Override
