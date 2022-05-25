@@ -7,7 +7,7 @@ public class Bank {
     public static final int NTEST = 10000;
     private final int[] accounts;
     private long ntransacts = 0;
-    private Lock lock = new ReentrantLock();
+    private final Object lock = new Object();
     public Bank(int n, int initialBalance){
         accounts = new int[n];
         int i;
@@ -16,15 +16,12 @@ public class Bank {
         ntransacts = 0;
     }
     public void transfer(int from, int to, int amount) {
-        lock.lock();
-        try {
+        synchronized (lock) {
             accounts[from] -= amount;
             accounts[to] += amount;
             ntransacts++;
             if (ntransacts % NTEST == 0)
                 test();
-        } finally {
-            lock.unlock();
         }
     }
 

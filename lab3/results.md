@@ -37,37 +37,18 @@
     }
 ```
 
-### II метод Atomic типи даних
+### II метод Неявний локер об'єкта
 ```java
-    private final AtomicInteger[] accounts;
+    private final Object lock = new Object();
 
-    private long ntransacts = 0;
-    
-    public Bank.Bank(int n, int initialBalance){
-        accounts = new AtomicInteger[n];
-        for (int i = 0; i < accounts.length; ++i) {
-            accounts[i] = new AtomicInteger(0);
-        }
-        int i;
-        for (i = 0; i < accounts.length; i++)
-            accounts[i].getAndSet(initialBalance);
-        ntransacts = 0;
-    }
-    
     public void transfer(int from, int to, int amount) {
-        accounts[from].addAndGet(-amount);
-        accounts[to].addAndGet(amount);
-        ntransacts++;
-        if (ntransacts % NTEST == 0)
+        synchronized (lock) {
+            accounts[from] -= amount;
+            accounts[to] += amount;
+            ntransacts++;
+            if (ntransacts % NTEST == 0)
             test();
-    }
-
-    public void test(){
-        int sum = 0;
-        for (int i = 0; i < accounts.length; i++)
-            sum += accounts[i].get();
-        System.out.println("Transactions:" + ntransacts
-                + " Sum: " + sum);
+        }
     }
 ```
 
@@ -91,18 +72,8 @@
 
 ## Producer-Consumer application
 ### Модифікований код
+### `Consumer.java`
 ```java
-package ConsumerProducer;
-
-import java.util.Random;
-
-public class Consumer implements Runnable {
-    private Drop drop;
-
-    public Consumer(Drop drop) {
-        this.drop = drop;
-    }
-
     public void run() {
         Random random = new Random();
         int size = drop.take();
@@ -114,68 +85,9 @@ public class Consumer implements Runnable {
             } catch (InterruptedException e) {}
         }
     }
-}
 ```
+### `Produder.java`
 ```java
-package ConsumerProducer;
-
-public class Drop {
-    // Message sent from producer
-    // to consumer.
-    private int message;
-    // True if consumer should wait
-    // for producer to send message,
-    // false if producer should wait for
-    // consumer to retrieve message.
-    private boolean empty = true;
-
-    public synchronized int take() {
-        // Wait until message is
-        // available.
-        while (empty) {
-            try {
-                wait();
-            } catch (InterruptedException e) {}
-        }
-        // Toggle status.
-        empty = true;
-        // Notify producer that
-        // status has changed.
-        notifyAll();
-        return message;
-    }
-
-    public synchronized void put(int message) {
-        // Wait until message has
-        // been retrieved.
-        while (!empty) {
-            try {
-                wait();
-            } catch (InterruptedException e) {}
-        }
-        // Toggle status.
-        empty = false;
-        // Store message.
-        this.message = message;
-        // Notify consumer that status
-        // has changed.
-        notifyAll();
-    }
-}
-```
-```java
-package ConsumerProducer;
-
-import java.util.Random;
-
-public class Producer implements Runnable {
-    private Drop drop;
-    private int ARRSIZE = 1000;
-
-    public Producer(Drop drop) {
-        this.drop = drop;
-    }
-
     public void run() {
         Random random = new Random();
         int[] importantInfo = new int[ARRSIZE];
@@ -192,9 +104,94 @@ public class Producer implements Runnable {
 }
 ```
 
+### `Drop.java`
+```java
+    private int message;
+    private boolean empty = true;
+
+    public synchronized int take() {
+        while (empty) {
+            try {
+                wait();
+            } catch (InterruptedException e) {}
+        }
+        empty = true;
+        notifyAll();
+        return message;
+    }
+
+    public synchronized void put(int message) {
+        while (!empty) {
+            try {
+                wait();
+            } catch (InterruptedException e) {}
+        }
+        empty = false;
+        this.message = message;
+        notifyAll();
+    }
+```
+
+### Альтернативний варіант 
 Також розроблений варіант Producer-Consumer
 application з використанням ArrayBlockingQueue
 у ролі посередника для передачі даних
+### `ProducerQueue.java`
+```java
+public class ProducerQueue implements Runnable {
+    private ArrayBlockingQueue drop;
+    private int ARRSIZE = 1000;
+
+    public ProducerQueue(ArrayBlockingQueue queue) {
+        this.drop = queue;
+    }
+
+    public void run() {
+        Random random = new Random();
+        int[] importantInfo = new int[ARRSIZE];
+        try {
+            drop.put(ARRSIZE);
+        } catch (InterruptedException ex) {}
+        for (int i = 0; i < importantInfo.length; i++) {
+            importantInfo[i] = i;
+            try {
+                drop.put(importantInfo[i]);
+                Thread.sleep(random.nextInt(100));
+            } catch (InterruptedException e) {}
+        }
+    }
+}
+```
+### `ConsumerQueue.java`
+```java
+public class ConsumerQueue implements Runnable {
+    private ArrayBlockingQueue<Integer> drop;
+
+    public ConsumerQueue(ArrayBlockingQueue<Integer> drop) {
+        this.drop = drop;
+    }
+
+    public void run() {
+        Random random = new Random();
+        int size = 0;
+        try {
+            size = drop.take();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        for (int i = 0; i < size; ++i) {
+            try {
+                var message = drop.take();
+                System.out.println("MESSAGE " + (i + 1) + " OF " + size + " RECEIVED: " + message);
+                Thread.sleep(random.nextInt(100));
+            } catch (InterruptedException e) {}
+        }
+    }
+}
+```
+В обох випадка програма працює коректно та виходять консистентні дані. Але при використанні
+`ArrayBlockingQueue` затримка при передачі повідомлень виникає тільки якщо буфер забитий,
+або ж повністю пустий. В усіх інших випадках вона не блокує потоки
 
 ## Електронний журнал
 Особливістю журналу є його структура, з мінімізованою синхронізацією, що дозволяє досягти кращого перформансу
