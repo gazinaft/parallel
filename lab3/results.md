@@ -101,7 +101,6 @@
             } catch (InterruptedException e) {}
         }
     }
-}
 ```
 
 ### `Drop.java`
