@@ -102,7 +102,7 @@ object AnalyzerExample extends App {
   val seq = standardConfig measure {
     seqSum = sequentialMetrics(files, tr, 0, files.length, sequentialSum)
   }
-  println(seqSum)
+  println(resFromMetrics(seqSum))
   println("sequential: " + seq)
   var best = (100.0, 100)
   for (i <- 1 to 2) {
@@ -114,7 +114,7 @@ object AnalyzerExample extends App {
     if (par.value < best._1) {
       best = (par.value, threshold)
     }
-    println(parSum)
+    println(resFromMetrics(parSum))
     println("|" + par.value + "|" + threshold + "|")
   }
   println("==============================================")
